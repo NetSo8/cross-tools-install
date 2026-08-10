@@ -17,15 +17,14 @@ type installFinishedMsg struct {
 }
 
 type Model struct {
-	actions  []installer.Action
-	selected []bool
-	info     platform.Info
-	runner   installer.Runner
-	dryRun   bool
-	cursor   int
-	state    string
-	results  []installer.Result
-	height   int
+	actions []installer.Action
+	info    platform.Info
+	runner  installer.Runner
+	dryRun  bool
+	cursor  int
+	state   string
+	results []installer.Result
+	height  int
 }
 
 var (
@@ -37,11 +36,7 @@ var (
 )
 
 func NewModel(actions []installer.Action, info platform.Info, runner installer.Runner, dryRun bool) Model {
-	selected := make([]bool, len(actions))
-	for i := range selected {
-		selected[i] = true
-	}
-	return Model{actions: actions, selected: selected, info: info, runner: runner, dryRun: dryRun, state: "select"}
+	return Model{actions: actions, info: info, runner: runner, dryRun: dryRun, state: "select"}
 }
 
 func (m Model) Init() tea.Cmd { return nil }
@@ -65,18 +60,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.cursor < len(m.actions)-1 {
 				m.cursor++
 			}
-		case " ", "space":
-			if len(m.actions) > 0 {
-				m.selected[m.cursor] = !m.selected[m.cursor]
-			}
-		case "a":
-			for i := range m.selected {
-				m.selected[i] = true
-			}
-		case "n":
-			for i := range m.selected {
-				m.selected[i] = false
-			}
 		case "enter":
 			cmd := m.installCmd()
 			if cmd != nil {
@@ -92,12 +75,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) installCmd() tea.Cmd {
-	actions := make([]installer.Action, 0, len(m.actions))
-	for i, action := range m.actions {
-		if m.selected[i] {
-			actions = append(actions, action)
-		}
-	}
+	actions := m.actions
 	if len(actions) == 0 {
 		return nil
 	}
@@ -152,11 +130,7 @@ func (m Model) View() string {
 		if i == m.cursor && m.state != "finished" {
 			cursor = keyStyle.Render("> ")
 		}
-		checked := "[ ]"
-		if m.selected[i] {
-			checked = "[x]"
-		}
-		line := fmt.Sprintf("%s%s %-27s %-20s", cursor, checked, action.Tool.Name, action.Tool.Category)
+		line := fmt.Sprintf("%s%-30s %-20s", cursor, action.Tool.Name, action.Tool.Category)
 		if action.Unavailable {
 			line += " " + mutedStyle.Render("gestionnaire absent")
 		} else if action.Builtin {
@@ -172,7 +146,7 @@ func (m Model) View() string {
 	b.WriteString("\n")
 	switch m.state {
 	case "select":
-		b.WriteString(mutedStyle.Render("j/k ou fleches: naviguer   espace: sélectionner   a: tout   n: rien   entrée: installer   q: quitter"))
+		b.WriteString(mutedStyle.Render("Pack disponible pour cet OS   j/k ou fleches: naviguer   entrée: installer le pack complet   q: quitter"))
 	case "installing":
 		b.WriteString(keyStyle.Render("Installation en cours..."))
 	case "finished":

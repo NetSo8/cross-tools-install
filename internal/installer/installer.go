@@ -64,6 +64,9 @@ func Plan(manifest config.Manifest, osName string, info platform.Info) []Action 
 				break
 			}
 		}
+		if selected.Unavailable {
+			continue
+		}
 		actions = append(actions, selected)
 	}
 	return actions

@@ -20,6 +20,18 @@ func TestPlanUsesFirstAvailablePackageManager(t *testing.T) {
 	}
 }
 
+func TestPlanHidesUnavailableTools(t *testing.T) {
+	manifest := config.Manifest{Tools: []config.Tool{
+		{Name: "Git", Category: "toolchain", Packages: map[string][]config.Package{"linux": {{Manager: "apt", Name: "git"}}}},
+		{Name: "x64dbg", Category: "Windows", Packages: map[string][]config.Package{"windows": {{Manager: "scoop", Name: "x64dbg"}}}},
+	}}
+	info := platform.Info{Name: "linux", Managers: []string{"apt"}, Commands: map[string]string{"apt": "apt-get"}}
+	actions := Plan(manifest, "linux", info)
+	if len(actions) != 1 || actions[0].Tool.Name != "Git" {
+		t.Fatalf("les outils indisponibles devraient être masqués: %#v", actions)
+	}
+}
+
 func TestInstallStopsAfterFailure(t *testing.T) {
 	actions := []Action{{Tool: config.Tool{Name: "one"}, Command: "one"}, {Tool: config.Tool{Name: "two"}, Command: "two"}}
 	runner := &fakeRunner{failOn: "one"}

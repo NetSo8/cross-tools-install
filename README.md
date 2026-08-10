@@ -22,13 +22,10 @@ Au lancement normal, les gestionnaires manquants sont bootstrappés avant le pla
 go run ./cmd/cross-tools
 ```
 
-Dans la TUI :
+Dans la TUI, le menu affiche uniquement le pack compatible avec l'OS. La touche entrée installe toujours le pack complet :
 
 - `j`/`k` ou les flèches : naviguer
-- `espace` : sélectionner/désélectionner
-- `a` : tout sélectionner
-- `n` : tout désélectionner
-- `entrée` : installer
+- `entrée` : installer le pack complet
 - `q` : quitter
 
 Options utiles :
