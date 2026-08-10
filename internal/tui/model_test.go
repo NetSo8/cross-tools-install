@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"strings"
 	"testing"
 
 	"cross-tools-install/internal/config"
@@ -29,5 +30,16 @@ func TestEnterInstallsFullPack(t *testing.T) {
 	finished, _ := updated.Update(message)
 	if finished.(Model).state != "finished" || len(finished.(Model).results) != 2 {
 		t.Fatal("le pack complet devrait contenir toutes les actions")
+	}
+}
+
+func TestViewPresentsOneCompletePack(t *testing.T) {
+	actions := []installer.Action{{Tool: config.Tool{Name: "Git", Category: "toolchain"}}}
+	view := NewModel(actions, platform.Info{Name: "darwin", Managers: []string{"brew"}}, nil, true).View()
+	if !strings.Contains(view, "PACK DISPONIBLE") || !strings.Contains(view, "PRÊT") || !strings.Contains(view, "toolchain") {
+		t.Fatalf("la vue devrait présenter clairement le pack: %s", view)
+	}
+	if strings.Contains(view, "naviguer") || strings.Contains(view, "sélectionner") {
+		t.Fatalf("la vue ne devrait plus proposer de navigation individuelle: %s", view)
 	}
 }

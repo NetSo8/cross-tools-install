@@ -21,18 +21,17 @@ type Model struct {
 	info    platform.Info
 	runner  installer.Runner
 	dryRun  bool
-	cursor  int
 	state   string
 	results []installer.Result
-	height  int
 }
 
 var (
-	titleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#7D56F4"))
-	mutedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#626262"))
-	okStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("#04B575"))
-	badStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF4672"))
-	keyStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("#FBA92C"))
+	titleStyle   = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#A78BFA"))
+	mutedStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("#7C8494"))
+	okStyle      = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#34D399"))
+	badStyle     = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FB7185"))
+	sectionStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#67E8F9"))
+	panelStyle   = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#3F4654")).Padding(0, 1)
 )
 
 func NewModel(actions []installer.Action, info platform.Info, runner installer.Runner, dryRun bool) Model {
@@ -43,8 +42,6 @@ func (m Model) Init() tea.Cmd { return nil }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.height = msg.Height
 	case tea.KeyMsg:
 		if m.state == "installing" {
 			return m, nil
@@ -52,14 +49,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
-		case "up", "k":
-			if m.cursor > 0 {
-				m.cursor--
-			}
-		case "down", "j":
-			if m.cursor < len(m.actions)-1 {
-				m.cursor++
-			}
 		case "enter":
 			cmd := m.installCmd()
 			if cmd != nil {
@@ -95,74 +84,86 @@ func (m Model) installCmd() tea.Cmd {
 
 func (m Model) View() string {
 	var b strings.Builder
-	b.WriteString(titleStyle.Render("Cross Tools Install"))
+	b.WriteString(titleStyle.Render("CROSS TOOLS"))
+	b.WriteString(mutedStyle.Render("  /  ENVIRONMENT PACK"))
 	b.WriteString("\n")
-	b.WriteString(fmt.Sprintf("OS: %s    Gestionnaires: %s\n", m.info.Name, strings.Join(m.info.Managers, ", ")))
+	b.WriteString(mutedStyle.Render("Installation complète des outils compatibles avec la plateforme détectée."))
+	b.WriteString("\n\n")
+
+	summary := fmt.Sprintf("OS  %s\nGestionnaires  %s\nOutils du pack  %d", m.info.Name, strings.Join(m.info.Managers, ", "), len(m.actions))
+	b.WriteString(panelStyle.Render(summary))
+	b.WriteString("\n\n")
 	if m.dryRun {
 		b.WriteString(mutedStyle.Render("Mode simulation: aucune commande ne sera exécutée."))
-		b.WriteString("\n")
+		b.WriteString("\n\n")
 	}
+	b.WriteString(sectionStyle.Render("PACK DISPONIBLE"))
 	b.WriteString("\n")
-	start, end := 0, len(m.actions)
-	if m.height > 0 {
-		maxRows := m.height - 8
-		if maxRows < 5 {
-			maxRows = 5
-		}
-		if len(m.actions) > maxRows {
-			start = m.cursor - maxRows/2
-			if start < 0 {
-				start = 0
-			}
-			if start+maxRows > len(m.actions) {
-				start = len(m.actions) - maxRows
-			}
-			end = start + maxRows
-		}
-	}
-	if start > 0 {
-		b.WriteString(mutedStyle.Render("  ... plus haut ..."))
-		b.WriteString("\n")
-	}
-	for i := start; i < end; i++ {
-		action := m.actions[i]
-		cursor := "  "
-		if i == m.cursor && m.state != "finished" {
-			cursor = keyStyle.Render("> ")
-		}
-		line := fmt.Sprintf("%s%-30s %-20s", cursor, action.Tool.Name, action.Tool.Category)
-		if action.Unavailable {
-			line += " " + mutedStyle.Render("gestionnaire absent")
-		} else if action.Builtin {
-			line += " " + mutedStyle.Render("fourni par le système")
-		}
-		b.WriteString(line)
-		b.WriteString("\n")
-	}
-	if end < len(m.actions) {
-		b.WriteString(mutedStyle.Render("  ... plus bas ..."))
-		b.WriteString("\n")
-	}
+	b.WriteString(renderCategories(m.actions))
 	b.WriteString("\n")
 	switch m.state {
 	case "select":
-		b.WriteString(mutedStyle.Render("Pack disponible pour cet OS   j/k ou fleches: naviguer   entrée: installer le pack complet   q: quitter"))
+		b.WriteString(okStyle.Render("PRÊT"))
+		b.WriteString("  ")
+		b.WriteString(mutedStyle.Render("Entrée installe le pack complet   q quitte"))
 	case "installing":
-		b.WriteString(keyStyle.Render("Installation en cours..."))
+		b.WriteString(mutedStyle.Render("INSTALLATION EN COURS..."))
 	case "finished":
-		b.WriteString(okStyle.Render("Traitement terminé. Appuyez sur q pour quitter."))
-		for _, result := range m.results {
-			b.WriteString("\n")
-			if m.dryRun {
-				b.WriteString(mutedStyle.Render(fmt.Sprintf("  [plan] %s", installer.FormatCommand(result.Action))))
-			} else if result.Err != nil {
-				b.WriteString(badStyle.Render(fmt.Sprintf("  [échec] %s: %v", result.Action.Tool.Name, result.Err)))
-			} else if result.Action.Builtin || result.Action.Unavailable {
-				b.WriteString(mutedStyle.Render(fmt.Sprintf("  [ignoré] %s", result.Action.Tool.Name)))
-			} else {
-				b.WriteString(okStyle.Render(fmt.Sprintf("  [ok] %s", result.Action.Tool.Name)))
-			}
-		}
+		b.WriteString(renderResults(m.results, len(m.actions), m.dryRun))
 	}
 	return b.String()
+}
+
+func renderCategories(actions []installer.Action) string {
+	var b strings.Builder
+	seen := make(map[string]bool)
+	for _, action := range actions {
+		if seen[action.Tool.Category] {
+			continue
+		}
+		seen[action.Tool.Category] = true
+		b.WriteString("  ")
+		b.WriteString(mutedStyle.Render(action.Tool.Category))
+		b.WriteString("\n    ")
+		var names []string
+		for _, candidate := range actions {
+			if candidate.Tool.Category != action.Tool.Category {
+				continue
+			}
+			name := candidate.Tool.Name
+			if candidate.Builtin {
+				name += " (système)"
+			}
+			names = append(names, name)
+		}
+		b.WriteString(strings.Join(names, "  ·  "))
+		b.WriteString("\n")
+	}
+	return b.String()
+}
+
+func renderResults(results []installer.Result, total int, dryRun bool) string {
+	success, skipped, failed := 0, 0, 0
+	var failure string
+	for _, result := range results {
+		if result.Err != nil {
+			failed++
+			failure = result.Action.Tool.Name + ": " + result.Err.Error()
+		} else if result.Action.Builtin {
+			skipped++
+		} else {
+			success++
+		}
+	}
+	if dryRun {
+		return "\n" + mutedStyle.Render(fmt.Sprintf("PLAN PRÊT  ·  %d commandes à exécuter", len(results))) + "\n" + mutedStyle.Render("Appuyez sur q pour quitter")
+	}
+	if failed > 0 {
+		return "\n" + badStyle.Render("INSTALLATION INTERROMPUE") + "\n" + mutedStyle.Render(fmt.Sprintf("%d réussies  ·  %d système  ·  %d en échec  ·  %d non exécutées", success, skipped, failed, total-len(results))) + "\n" + badStyle.Render(indentError(failure)) + "\n" + mutedStyle.Render("Appuyez sur q pour quitter")
+	}
+	return "\n" + okStyle.Render("PACK INSTALLÉ") + "\n" + mutedStyle.Render(fmt.Sprintf("%d outils installés  ·  %d fournis par le système", success, skipped)) + "\n" + mutedStyle.Render("Appuyez sur q pour quitter")
+}
+
+func indentError(message string) string {
+	return "  " + strings.ReplaceAll(message, "\n", "\n  ")
 }
