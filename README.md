@@ -1,0 +1,91 @@
+# Cross Tools Install
+
+Installateur cross-platform en Go pour les outils de reverse engineering et de développement bas niveau. L'OS est détecté automatiquement et les paquets sont choisis depuis `tools.json`.
+
+## Prérequis
+
+- Go 1.26 ou plus récent pour compiler le projet
+- Un gestionnaire de paquets présent, ou installable automatiquement, sur la machine :
+  - Windows : `scoop` ou `winget`
+  - Linux : `apt`, `dnf`, `pacman` ou `snap`
+  - macOS : `brew`
+- `pip`/`pip3` si les outils Python sont sélectionnés
+- Les droits administrateur pour les installations système Linux
+
+macOS fournit déjà LLDB, `otool` et DTrace via les outils système. Ils apparaissent dans l'interface mais ne déclenchent aucune installation.
+
+Au lancement normal, les gestionnaires manquants sont bootstrappés avant le plan des outils : Homebrew sur macOS, Scoop sur Windows et `pip` via `ensurepip` lorsque Python est disponible. `winget` dépend de l'App Installer de Microsoft et les gestionnaires Linux natifs dépendent de la distribution : s'ils sont absents, l'outil les signale sans tenter une installation destructive. `--list` reste toujours sans effet de bord.
+
+## Utilisation
+
+```sh
+go run ./cmd/cross-tools
+```
+
+Dans la TUI :
+
+- `j`/`k` ou les flèches : naviguer
+- `espace` : sélectionner/désélectionner
+- `a` : tout sélectionner
+- `n` : tout désélectionner
+- `entrée` : installer
+- `q` : quitter
+
+Options utiles :
+
+```sh
+# Voir les commandes qui seraient exécutées
+go run ./cmd/cross-tools --list --dry-run
+
+# Installer tout sans interface interactive
+go run ./cmd/cross-tools --yes
+
+# Utiliser un manifeste personnalisé
+go run ./cmd/cross-tools --manifest ./mon-manifeste.json
+
+# Vérifier le plan d'une autre plateforme sans l'installer
+go run ./cmd/cross-tools --os linux --list --dry-run
+
+# Désactiver le bootstrap automatique des gestionnaires
+go run ./cmd/cross-tools --bootstrap=false
+```
+
+## Manifeste
+
+`tools.json` est volontairement externe au binaire. Chaque outil peut déclarer des alternatives par OS, dans l'ordre de préférence :
+
+```json
+{
+  "version": 1,
+  "tools": [
+    {
+      "name": "Mon outil",
+      "category": "Ma catégorie",
+      "description": "Description affichée dans le manifeste",
+      "packages": {
+        "linux": [
+          {"manager": "apt", "name": "mon-paquet"},
+          {"manager": "dnf", "name": "mon-paquet"}
+        ],
+        "darwin": [
+          {"manager": "brew", "name": "mon-paquet", "options": ["--cask"]}
+        ],
+        "windows": [
+          {"manager": "winget", "name": "Vendor.MonOutil"}
+        ]
+      }
+    }
+  ]
+}
+```
+
+Les gestionnaires pris en charge sont `apt`, `dnf`, `pacman`, `snap`, `brew`, `scoop`, `winget`, `pip`, `xcode-select`, `script` et `builtin`. Les entrées `all` peuvent servir de repli commun lorsque le nom du paquet est identique. Le gestionnaire `script` exécute explicitement `command` avec `args` : utilisez `--dry-run` pour inspecter ces commandes avant installation.
+
+## Vérification
+
+```sh
+go fmt ./...
+go test ./...
+go vet ./...
+go build ./cmd/cross-tools
+```

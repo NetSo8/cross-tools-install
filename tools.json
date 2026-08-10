@@ -1,0 +1,237 @@
+{
+  "version": 1,
+  "tools": [
+    {
+      "name": "Ghidra",
+      "category": "Reverse engineering",
+      "description": "Décompilateur et framework d'analyse binaire",
+      "packages": {
+        "windows": [{"manager": "scoop", "name": "ghidra"}, {"manager": "winget", "name": "NSA.Ghidra"}],
+        "linux": [{"manager": "apt", "name": "ghidra"}, {"manager": "dnf", "name": "ghidra"}, {"manager": "pacman", "name": "ghidra"}],
+        "darwin": [{"manager": "brew", "name": "ghidra", "options": ["--cask"]}]
+      }
+    },
+    {
+      "name": "Cutter / Rizin",
+      "category": "Reverse engineering",
+      "description": "Interface graphique moderne pour l'analyse de binaires",
+      "packages": {
+        "windows": [{"manager": "scoop", "name": "cutter"}, {"manager": "winget", "name": "rizinorg.Cutter"}],
+        "linux": [{"manager": "apt", "name": "cutter"}, {"manager": "dnf", "name": "cutter"}, {"manager": "pacman", "name": "cutter"}],
+        "darwin": [{"manager": "brew", "name": "cutter", "options": ["--cask"]}]
+      }
+    },
+    {
+      "name": "ImHex",
+      "category": "Reverse engineering",
+      "description": "Éditeur hexadécimal avec patterns PE, ELF et Mach-O",
+      "packages": {
+        "windows": [{"manager": "scoop", "name": "imhex"}, {"manager": "winget", "name": "WerWolv.ImHex"}],
+        "linux": [{"manager": "apt", "name": "imhex"}, {"manager": "pacman", "name": "imhex"}],
+        "darwin": [{"manager": "brew", "name": "imhex", "options": ["--cask"]}]
+      }
+    },
+    {
+      "name": "Wireshark",
+      "category": "Reverse engineering",
+      "description": "Analyseur de trafic réseau",
+      "packages": {
+        "windows": [{"manager": "scoop", "name": "wireshark"}, {"manager": "winget", "name": "WiresharkFoundation.Wireshark"}],
+        "linux": [{"manager": "apt", "name": "wireshark"}, {"manager": "dnf", "name": "wireshark"}, {"manager": "pacman", "name": "wireshark-qt"}],
+        "darwin": [{"manager": "brew", "name": "wireshark", "options": ["--cask"]}]
+      }
+    },
+    {
+      "name": "Frida",
+      "category": "Reverse engineering",
+      "description": "Instrumentation dynamique de processus",
+      "packages": {
+        "all": [{"manager": "pip", "name": "frida-tools"}]
+      }
+    },
+    {
+      "name": "LLVM / Clang",
+      "category": "C / toolchain",
+      "description": "Compilateur C/C++ et outils d'analyse modernes",
+      "packages": {
+        "windows": [{"manager": "scoop", "name": "llvm"}, {"manager": "winget", "name": "LLVM.LLVM"}],
+        "linux": [{"manager": "apt", "name": "clang"}, {"manager": "dnf", "name": "clang"}, {"manager": "pacman", "name": "clang"}],
+        "darwin": [{"manager": "brew", "name": "llvm"}]
+      }
+    },
+    {
+      "name": "GCC",
+      "category": "C / toolchain",
+      "description": "Compilateur C/C++ de référence sous Linux",
+      "packages": {
+        "windows": [{"manager": "scoop", "name": "gcc"}, {"manager": "winget", "name": "MSYS2.MSYS2"}],
+        "linux": [{"manager": "apt", "name": "gcc"}, {"manager": "dnf", "name": "gcc"}, {"manager": "pacman", "name": "gcc"}],
+        "darwin": [{"manager": "brew", "name": "gcc"}]
+      }
+    },
+    {
+      "name": "CMake",
+      "category": "C / toolchain",
+      "description": "Générateur de projets C/C++",
+      "packages": {"all": [{"manager": "brew", "name": "cmake"}, {"manager": "scoop", "name": "cmake"}, {"manager": "apt", "name": "cmake"}]}
+    },
+    {
+      "name": "Ninja",
+      "category": "C / toolchain",
+      "description": "Build system rapide",
+      "packages": {"all": [{"manager": "brew", "name": "ninja"}, {"manager": "scoop", "name": "ninja"}, {"manager": "apt", "name": "ninja-build"}]}
+    },
+    {
+      "name": "Git",
+      "category": "C / toolchain",
+      "description": "Gestionnaire de version",
+      "packages": {
+        "windows": [{"manager": "scoop", "name": "git"}, {"manager": "winget", "name": "Git.Git"}],
+        "linux": [{"manager": "apt", "name": "git"}, {"manager": "dnf", "name": "git"}, {"manager": "pacman", "name": "git"}],
+        "darwin": [{"manager": "brew", "name": "git"}]
+      }
+    },
+    {
+      "name": "VS Code",
+      "category": "C / toolchain",
+      "description": "Éditeur avec extensions C/C++ et clangd",
+      "packages": {
+        "windows": [{"manager": "scoop", "name": "vscode"}, {"manager": "winget", "name": "Microsoft.VisualStudioCode"}],
+        "linux": [{"manager": "snap", "name": "code", "options": ["--classic"]}],
+        "darwin": [{"manager": "brew", "name": "visual-studio-code", "options": ["--cask"]}]
+      }
+    },
+    {
+      "name": "x64dbg / x32dbg",
+      "category": "Windows",
+      "description": "Débogueur user-mode pour PE",
+      "packages": {"windows": [{"manager": "scoop", "name": "x64dbg"}, {"manager": "winget", "name": "x64dbg.x64dbg"}]}
+    },
+    {
+      "name": "Sysinternals Suite",
+      "category": "Windows",
+      "description": "Procmon, Process Explorer et outils système Microsoft",
+      "packages": {"windows": [{"manager": "winget", "name": "Microsoft.Sysinternals"}]}
+    },
+    {
+      "name": "System Informer",
+      "category": "Windows",
+      "description": "Inspection avancée des processus, threads et handles",
+      "packages": {"windows": [{"manager": "winget", "name": "WinsiderSS.SystemInformer"}]}
+    },
+    {
+      "name": "PE-bear",
+      "category": "Windows",
+      "description": "Visualiseur de structures PE",
+      "packages": {"windows": [{"manager": "scoop", "name": "pe-bear"}]}
+    },
+    {
+      "name": "w64devkit",
+      "category": "Windows",
+      "description": "Toolchain GCC portable pour Windows",
+      "packages": {"windows": [{"manager": "scoop", "name": "w64devkit"}]}
+    },
+    {
+      "name": "Visual Studio Build Tools",
+      "category": "Windows",
+      "description": "Compilateurs MSVC et SDK Windows natifs",
+      "packages": {"windows": [{"manager": "winget", "name": "Microsoft.VisualStudio.2022.BuildTools"}]}
+    },
+    {
+      "name": "GEF",
+      "category": "Linux",
+      "description": "Extension GDB pour le reverse et le pwn",
+      "packages": {"linux": [{"manager": "script", "name": "GEF", "command": "bash", "args": ["-c", "curl -fsSL https://gef.blah.cat/sh | bash"]}]}
+    },
+    {
+      "name": "pwndbg",
+      "category": "Linux",
+      "description": "Extension GDB pour l'exploitation et le heap",
+      "packages": {"linux": [{"manager": "script", "name": "pwndbg", "command": "bash", "args": ["-c", "git clone https://github.com/pwndbg/pwndbg.git ~/.local/share/pwndbg && ~/.local/share/pwndbg/setup.sh"]}]}
+    },
+    {
+      "name": "Pwntools",
+      "category": "Linux",
+      "description": "Automatisation d'exploits et de connexions CTF",
+      "packages": {"linux": [{"manager": "pip", "name": "pwntools"}]}
+    },
+    {
+      "name": "ROPgadget",
+      "category": "Linux",
+      "description": "Recherche automatique de gadgets ROP",
+      "packages": {"linux": [{"manager": "pip", "name": "ROPgadget"}]}
+    },
+    {
+      "name": "Ropper",
+      "category": "Linux",
+      "description": "Recherche et analyse de gadgets ROP",
+      "packages": {"linux": [{"manager": "pip", "name": "ropper"}]}
+    },
+    {
+      "name": "checksec",
+      "category": "Linux",
+      "description": "Vérification des protections d'un binaire",
+      "packages": {"linux": [{"manager": "apt", "name": "checksec"}, {"manager": "pacman", "name": "checksec"}]}
+    },
+    {
+      "name": "strace",
+      "category": "Linux",
+      "description": "Traçage des appels système",
+      "packages": {"linux": [{"manager": "apt", "name": "strace"}, {"manager": "dnf", "name": "strace"}, {"manager": "pacman", "name": "strace"}]}
+    },
+    {
+      "name": "ltrace",
+      "category": "Linux",
+      "description": "Traçage des bibliothèques dynamiques",
+      "packages": {"linux": [{"manager": "apt", "name": "ltrace"}, {"manager": "dnf", "name": "ltrace"}, {"manager": "pacman", "name": "ltrace"}]}
+    },
+    {
+      "name": "Valgrind",
+      "category": "Linux",
+      "description": "Détection des fuites et accès mémoire invalides",
+      "packages": {"linux": [{"manager": "apt", "name": "valgrind"}, {"manager": "dnf", "name": "valgrind"}, {"manager": "pacman", "name": "valgrind"}]}
+    },
+    {
+      "name": "perf",
+      "category": "Linux",
+      "description": "Analyse des performances CPU",
+      "packages": {"linux": [{"manager": "apt", "name": "linux-tools-generic"}, {"manager": "dnf", "name": "perf"}, {"manager": "pacman", "name": "perf"}]}
+    },
+    {
+      "name": "FlameGraph",
+      "category": "Linux",
+      "description": "Visualisation des profils de performance",
+      "packages": {"linux": [{"manager": "apt", "name": "flamegraph"}, {"manager": "dnf", "name": "flamegraph"}, {"manager": "pacman", "name": "flamegraph"}]}
+    },
+    {
+      "name": "Xcode Command Line Tools",
+      "category": "macOS",
+      "description": "Clang, Make, LLDB et SDK macOS",
+      "packages": {"darwin": [{"manager": "xcode-select", "name": "--install"}]}
+    },
+    {
+      "name": "LLDB",
+      "category": "macOS",
+      "description": "Débogueur natif macOS et Apple Silicon",
+      "packages": {"darwin": [{"manager": "builtin", "name": "lldb"}]}
+    },
+    {
+      "name": "Hopper Disassembler",
+      "category": "macOS",
+      "description": "Désassembleur Mach-O et Objective-C",
+      "packages": {"darwin": [{"manager": "brew", "name": "hopper-disassembler", "options": ["--cask"]}]}
+    },
+    {
+      "name": "Mach-O tools",
+      "category": "macOS",
+      "description": "Outils d'analyse Mach-O (otool, nm, dyld_info)",
+      "packages": {"darwin": [{"manager": "builtin", "name": "otool"}]}
+    },
+    {
+      "name": "DTrace / dtruss",
+      "category": "macOS",
+      "description": "Traçage dynamique macOS",
+      "packages": {"darwin": [{"manager": "builtin", "name": "dtrace"}]}
+    }
+  ]
+}

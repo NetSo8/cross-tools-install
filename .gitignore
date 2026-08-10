@@ -1,0 +1,13 @@
+# Build outputs
+/cross-tools
+/dist/
+*.exe
+
+# Local tooling and editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Temporary files
+*.tmp
+*.log
