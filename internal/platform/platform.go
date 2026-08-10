@@ -72,6 +72,9 @@ func DetectWith(goos string, lookup Lookup) Info {
 		}
 	case "darwin":
 		info.add(lookup, "brew", "brew")
+		if info.Commands["brew"] != "" {
+			info.add(lookup, "script", "bash")
+		}
 		info.add(lookup, "xcode-select", "xcode-select")
 		if !info.add(lookup, "pip", "pip3") {
 			info.add(lookup, "pip", "pip")

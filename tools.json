@@ -8,7 +8,10 @@
       "packages": {
         "windows": [{"manager": "scoop", "name": "ghidra"}, {"manager": "winget", "name": "NSA.Ghidra"}],
         "linux": [{"manager": "apt", "name": "ghidra"}, {"manager": "dnf", "name": "ghidra"}, {"manager": "pacman", "name": "ghidra"}],
-        "darwin": [{"manager": "brew", "name": "ghidra", "options": ["--cask"]}]
+        "darwin": [
+          {"manager": "script", "name": "ghidra", "command": "bash", "args": ["-c", "set -e; brew install --cask temurin; root=$HOME/.local/opt; mkdir -p $root; url=$(curl -fsSL https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest | grep -oE 'https://[^ ]+PUBLIC[^ ]+\\.zip' | head -n 1); archive=$root/ghidra.zip; curl -fL $url -o $archive; unzip -q -o $archive -d $root; rm -f $archive"]},
+          {"manager": "brew", "name": "ghidra", "options": ["--cask"]}
+        ]
       }
     },
     {

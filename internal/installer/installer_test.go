@@ -3,6 +3,7 @@ package installer
 import (
 	"context"
 	"reflect"
+	"strings"
 	"testing"
 
 	"cross-tools-install/internal/config"
@@ -41,6 +42,13 @@ func TestInstallStopsAfterFailure(t *testing.T) {
 	}
 	if !reflect.DeepEqual(runner.commands[0], []string{"one"}) {
 		t.Fatalf("commande exécutée inattendue: %#v", runner.commands)
+	}
+}
+
+func TestExecRunnerIncludesCommandOutputOnFailure(t *testing.T) {
+	err := (ExecRunner{}).Run(context.Background(), "go", []string{"definitely-not-a-go-command"})
+	if err == nil || !strings.Contains(err.Error(), "unknown command") {
+		t.Fatalf("la sortie de la commande devrait être conservée: %v", err)
 	}
 }
 

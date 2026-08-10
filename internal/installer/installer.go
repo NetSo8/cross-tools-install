@@ -1,6 +1,7 @@
 package installer
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os/exec"
@@ -45,8 +46,17 @@ type ExecRunner struct{}
 
 func (ExecRunner) Run(ctx context.Context, command string, args []string) error {
 	cmd := exec.CommandContext(ctx, command, args...)
-	cmd.Stdout = cmd.Stderr
-	return cmd.Run()
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		output := strings.TrimSpace(stdout.String() + "\n" + stderr.String())
+		if output != "" {
+			return fmt.Errorf("%w: %s", err, output)
+		}
+		return err
+	}
+	return nil
 }
 
 func Plan(manifest config.Manifest, osName string, info platform.Info) []Action {
