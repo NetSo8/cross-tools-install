@@ -7,9 +7,9 @@
       "description": "Décompilateur et framework d'analyse binaire",
       "packages": {
         "windows": [{"manager": "winget", "name": "NSA.Ghidra"}, {"manager": "scoop", "name": "ghidra"}],
-        "linux": [{"manager": "script", "name": "ghidra", "command": "bash", "args": ["-c", "set -e; if ! command -v java >/dev/null 2>&1; then if command -v apt-get >/dev/null 2>&1; then sudo DEBIAN_FRONTEND=noninteractive apt-get update; sudo DEBIAN_FRONTEND=noninteractive apt-get install -y openjdk-21-jre; elif command -v dnf >/dev/null 2>&1; then sudo dnf install -y java-21-openjdk; elif command -v pacman >/dev/null 2>&1; then sudo pacman -S --noconfirm jre21-openjdk; else echo 'Java 21 et gestionnaire compatible introuvables' >&2; exit 1; fi; fi; root=$HOME/.local/opt; mkdir -p $root; asset=$(curl -fsSL -A cross-tools-install https://github.com/NationalSecurityAgency/ghidra/releases/latest | grep -oE '/NationalSecurityAgency/ghidra/releases/download/[^\" ]+PUBLIC[^\" ]+\\.zip' | head -n 1); test -n $asset; curl -fL https://github.com$asset -o $root/ghidra.zip; unzip -q -o $root/ghidra.zip -d $root; rm -f $root/ghidra.zip"]}, {"manager": "apt", "name": "ghidra"}, {"manager": "dnf", "name": "ghidra"}, {"manager": "pacman", "name": "ghidra"}],
+        "linux": [{"manager": "script", "name": "ghidra", "command": "bash", "args": ["-c", "set -e; if ! command -v java >/dev/null 2>&1; then if command -v apt-get >/dev/null 2>&1; then sudo DEBIAN_FRONTEND=noninteractive apt-get update; sudo DEBIAN_FRONTEND=noninteractive apt-get install -y openjdk-21-jre; elif command -v dnf >/dev/null 2>&1; then sudo dnf install -y java-21-openjdk; elif command -v pacman >/dev/null 2>&1; then sudo pacman -S --noconfirm jre21-openjdk; else echo 'Java 21 et gestionnaire compatible introuvables' >&2; exit 1; fi; fi; root=$HOME/.local/opt; mkdir -p $root; asset=$(curl -fsSL -A cross-tools-install -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest | grep -oE 'https://[^\" ]+PUBLIC[^\" ]+\\.zip' | head -n 1); test -n $asset; curl -fL $asset -o $root/ghidra.zip; unzip -q -o $root/ghidra.zip -d $root; rm -f $root/ghidra.zip"]}, {"manager": "apt", "name": "ghidra"}, {"manager": "dnf", "name": "ghidra"}, {"manager": "pacman", "name": "ghidra"}],
         "darwin": [
-          {"manager": "script", "name": "ghidra", "command": "bash", "args": ["-c", "set -e; brew install --cask temurin; root=$HOME/.local/opt; mkdir -p $root; asset=$(curl -fsSL -A cross-tools-install https://github.com/NationalSecurityAgency/ghidra/releases/latest | grep -oE '/NationalSecurityAgency/ghidra/releases/download/[^\" ]+PUBLIC[^\" ]+\\.zip' | head -n 1); test -n $asset; curl -fL https://github.com$asset -o $root/ghidra.zip; unzip -q -o $root/ghidra.zip -d $root; rm -f $root/ghidra.zip"]},
+          {"manager": "script", "name": "ghidra", "command": "bash", "args": ["-c", "set -e; brew install --cask temurin; root=$HOME/.local/opt; mkdir -p $root; asset=$(curl -fsSL -A cross-tools-install -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest | grep -oE 'https://[^\" ]+PUBLIC[^\" ]+\\.zip' | head -n 1); test -n $asset; curl -fL $asset -o $root/ghidra.zip; unzip -q -o $root/ghidra.zip -d $root; rm -f $root/ghidra.zip"]},
           {"manager": "brew", "name": "ghidra", "options": ["--cask"]}
         ]
       }
@@ -67,7 +67,7 @@
       "category": "C / toolchain",
       "description": "Compilateur C/C++ de référence sous Linux",
       "packages": {
-        "windows": [{"manager": "winget", "name": "MSYS2.MSYS2"}, {"manager": "scoop", "name": "gcc"}],
+        "windows": [{"manager": "winget", "name": "BrechtSanders.WinLibs.POSIX.UCRT"}, {"manager": "winget", "name": "MSYS2.MSYS2"}, {"manager": "scoop", "name": "gcc"}],
         "linux": [{"manager": "apt", "name": "gcc"}, {"manager": "dnf", "name": "gcc"}, {"manager": "pacman", "name": "gcc"}],
         "darwin": [{"manager": "brew", "name": "gcc"}]
       }
@@ -150,7 +150,7 @@
       "name": "pwndbg",
       "category": "Linux",
       "description": "Extension GDB pour l'exploitation et le heap",
-      "packages": {"linux": [{"manager": "script", "name": "pwndbg", "command": "bash", "args": ["-c", "set -e; export PATH=$HOME/.local/bin:$PATH; root=$HOME/.local/share/pwndbg; if [ ! -d $root ]; then git clone --depth 1 https://github.com/pwndbg/pwndbg.git $root; fi; $root/setup.sh"]}]}
+      "packages": {"linux": [{"manager": "script", "name": "pwndbg", "command": "bash", "args": ["-c", "set -e; root=$HOME/.local/share/pwndbg; if [ ! -d $root ]; then git clone --depth 1 https://github.com/pwndbg/pwndbg.git $root; fi; export PWNDBG_VENV_PATH=$root/.venv; python3 -m venv $PWNDBG_VENV_PATH; export PATH=$PWNDBG_VENV_PATH/bin:$HOME/.local/bin:$PATH; $root/setup.sh --update"]}]}
     },
     {
       "name": "Pwntools",
