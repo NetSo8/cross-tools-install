@@ -1,8 +1,8 @@
 package tui
 
 import (
-	"context"
 	"fmt"
+	"os/exec"
 	"strings"
 
 	"cross-tools-install/internal/installer"
@@ -16,10 +16,15 @@ type installFinishedMsg struct {
 	results []installer.Result
 }
 
+type commandFinishedMsg struct {
+	index  int
+	action installer.Action
+	err    error
+}
+
 type Model struct {
 	actions []installer.Action
 	info    platform.Info
-	runner  installer.Runner
 	dryRun  bool
 	state   string
 	results []installer.Result
@@ -34,8 +39,8 @@ var (
 	panelStyle   = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#3F4654")).Padding(0, 1)
 )
 
-func NewModel(actions []installer.Action, info platform.Info, runner installer.Runner, dryRun bool) Model {
-	return Model{actions: actions, info: info, runner: runner, dryRun: dryRun, state: "select"}
+func NewModel(actions []installer.Action, info platform.Info, dryRun bool) Model {
+	return Model{actions: actions, info: info, dryRun: dryRun, state: "select"}
 }
 
 func (m Model) Init() tea.Cmd { return nil }
@@ -59,6 +64,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case installFinishedMsg:
 		m.results = msg.results
 		m.state = "finished"
+	case commandFinishedMsg:
+		m.results = append(m.results, installer.Result{Action: msg.action, Err: msg.err})
+		if msg.err != nil || msg.index == len(m.actions)-1 {
+			m.state = "finished"
+			return m, nil
+		}
+		return m, m.commandCmd(msg.index + 1)
 	}
 	return m, nil
 }
@@ -77,9 +89,19 @@ func (m Model) installCmd() tea.Cmd {
 			return installFinishedMsg{results: results}
 		}
 	}
-	return func() tea.Msg {
-		return installFinishedMsg{results: installer.Install(context.Background(), m.runner, actions)}
+	return m.commandCmd(0)
+}
+
+func (m Model) commandCmd(index int) tea.Cmd {
+	action := m.actions[index]
+	if action.Builtin {
+		return func() tea.Msg {
+			return commandFinishedMsg{index: index, action: action}
+		}
 	}
+	return tea.ExecProcess(exec.Command(action.Command, action.Args...), func(err error) tea.Msg {
+		return commandFinishedMsg{index: index, action: action, err: err}
+	})
 }
 
 func (m Model) View() string {

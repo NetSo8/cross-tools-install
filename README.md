@@ -27,6 +27,8 @@ Dans la TUI, l'écran affiche uniquement le pack compatible avec l'OS. Il n'y a 
 - `entrée` : installer le pack complet
 - `q` : quitter
 
+Les commandes d'installation sont exécutées avec le terminal rendu temporairement à Homebrew, `sudo` ou au gestionnaire concerné : les demandes de mot de passe restent donc interactives et visibles.
+
 Options utiles :
 
 ```sh

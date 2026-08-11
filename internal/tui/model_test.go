@@ -12,7 +12,7 @@ import (
 )
 
 func TestEnterWithNoSelectionDoesNothing(t *testing.T) {
-	model := NewModel(nil, platform.Info{Name: "linux"}, nil, true)
+	model := NewModel(nil, platform.Info{Name: "linux"}, true)
 	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
 	if command != nil || updated.(Model).state != "select" {
 		t.Fatal("entrée ne devrait pas démarrer une installation vide")
@@ -21,7 +21,7 @@ func TestEnterWithNoSelectionDoesNothing(t *testing.T) {
 
 func TestEnterInstallsFullPack(t *testing.T) {
 	actions := []installer.Action{{Tool: config.Tool{Name: "Git"}}, {Tool: config.Tool{Name: "CMake"}}}
-	model := NewModel(actions, platform.Info{Name: "linux"}, nil, true)
+	model := NewModel(actions, platform.Info{Name: "linux"}, true)
 	updated, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
 	if command == nil || updated.(Model).state != "installing" {
 		t.Fatal("entrée devrait lancer le pack complet")
@@ -35,7 +35,7 @@ func TestEnterInstallsFullPack(t *testing.T) {
 
 func TestViewPresentsOneCompletePack(t *testing.T) {
 	actions := []installer.Action{{Tool: config.Tool{Name: "Git", Category: "toolchain"}}}
-	view := NewModel(actions, platform.Info{Name: "darwin", Managers: []string{"brew"}}, nil, true).View()
+	view := NewModel(actions, platform.Info{Name: "darwin", Managers: []string{"brew"}}, true).View()
 	if !strings.Contains(view, "PACK DISPONIBLE") || !strings.Contains(view, "PRÊT") || !strings.Contains(view, "toolchain") {
 		t.Fatalf("la vue devrait présenter clairement le pack: %s", view)
 	}

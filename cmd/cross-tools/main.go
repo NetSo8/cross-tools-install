@@ -48,7 +48,7 @@ func main() {
 		return
 	}
 
-	model := tui.NewModel(actions, info, installer.ExecRunner{}, *dryRun)
+	model := tui.NewModel(actions, info, *dryRun)
 	if _, err := tea.NewProgram(model).Run(); err != nil {
 		fatal(err)
 	}

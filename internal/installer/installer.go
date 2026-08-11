@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -47,8 +49,9 @@ type ExecRunner struct{}
 func (ExecRunner) Run(ctx context.Context, command string, args []string) error {
 	cmd := exec.CommandContext(ctx, command, args...)
 	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = io.MultiWriter(os.Stdout, &stdout)
+	cmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
 	if err := cmd.Run(); err != nil {
 		output := strings.TrimSpace(stdout.String() + "\n" + stderr.String())
 		if output != "" {
