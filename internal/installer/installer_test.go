@@ -87,7 +87,7 @@ func TestAptIndexIsUpdatedOnce(t *testing.T) {
 	if len(results) != 2 || len(runner.commands) != 3 {
 		t.Fatalf("APT devrait être mis à jour une seule fois: results=%d commands=%d", len(results), len(runner.commands))
 	}
-	if runner.commands[0][0] != "sudo" || runner.commands[0][1] != "apt-get" || runner.commands[0][2] != "update" {
+	if runner.commands[0][0] != "sudo" || runner.commands[0][1] != "DEBIAN_FRONTEND=noninteractive" || runner.commands[0][2] != "apt-get" || runner.commands[0][3] != "update" {
 		t.Fatalf("commande de mise à jour inattendue: %#v", runner.commands[0])
 	}
 }

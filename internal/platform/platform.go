@@ -28,7 +28,7 @@ func LookupCommand(command string) (string, error) {
 		return path, nil
 	}
 	for _, path := range knownPaths(runtime.GOOS, command) {
-		if _, err := exec.LookPath(path); err == nil {
+		if _, err := os.Stat(path); err == nil {
 			return path, nil
 		}
 	}

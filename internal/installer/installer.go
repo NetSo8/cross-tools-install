@@ -210,7 +210,7 @@ func actionFor(tool config.Tool, pkg config.Package, osName string, info platfor
 		args = append([]string{"install", "--id", pkg.Name, "--exact", "--source", "winget", "--accept-source-agreements", "--accept-package-agreements", "--disable-interactivity"}, args...)
 	case "apt":
 		command = "sudo"
-		args = append([]string{"apt-get", "install", "-y"}, args...)
+		args = append([]string{"DEBIAN_FRONTEND=noninteractive", "apt-get", "install", "-y"}, args...)
 		args = append(args, pkg.Name)
 	case "dnf":
 		command = "sudo"
@@ -250,7 +250,7 @@ func Install(ctx context.Context, runner Runner, actions []Action) []Result {
 			continue
 		}
 		if action.Manager == "apt" && !aptUpdated {
-			updateErr := runner.Run(ctx, "sudo", []string{"apt-get", "update"})
+			updateErr := runner.Run(ctx, "sudo", []string{"DEBIAN_FRONTEND=noninteractive", "apt-get", "update"})
 			aptUpdated = true
 			if updateErr != nil {
 				results = append(results, Result{Action: action, Err: fmt.Errorf("mise à jour APT: %w", updateErr)})
