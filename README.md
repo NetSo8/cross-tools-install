@@ -94,6 +94,8 @@ go build ./cmd/cross-tools
 
 Chaque push sur `main` ou pull request lance les tests sur Linux, macOS et Windows. Le détecteur de race est exécuté sur Linux.
 
+Pour vérifier une vraie installation avant une release, ouvrir `Actions` puis `Installation integration` et lancer le workflow. Par défaut, il installe un petit smoke pack réel sur les trois OS. L'option `full_pack` permet de tester le manifeste complet ; elle est plus longue et dépend des dépôts tiers, des DMG et des permissions de chaque runner.
+
 Pour créer une release, pousser un tag semver :
 
 ```sh

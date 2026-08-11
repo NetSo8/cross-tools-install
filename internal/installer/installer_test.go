@@ -33,6 +33,16 @@ func TestPlanHidesUnavailableTools(t *testing.T) {
 	}
 }
 
+func TestExpectedCountOnlyIncludesToolsForOS(t *testing.T) {
+	manifest := config.Manifest{Tools: []config.Tool{
+		{Name: "Git", Category: "common", Packages: map[string][]config.Package{"all": {{Manager: "apt", Name: "git"}}}},
+		{Name: "x64dbg", Category: "Windows", Packages: map[string][]config.Package{"windows": {{Manager: "scoop", Name: "x64dbg"}}}},
+	}}
+	if count := ExpectedCount(manifest, "linux"); count != 1 {
+		t.Fatalf("nombre d'outils attendu: 1, reçu: %d", count)
+	}
+}
+
 func TestInstallContinuesAfterFailure(t *testing.T) {
 	actions := []Action{{Tool: config.Tool{Name: "one"}, Command: "one"}, {Tool: config.Tool{Name: "two"}, Command: "two"}}
 	runner := &fakeRunner{failOn: "one"}

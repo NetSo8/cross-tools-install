@@ -85,6 +85,16 @@ func Plan(manifest config.Manifest, osName string, info platform.Info) []Action 
 	return actions
 }
 
+func ExpectedCount(manifest config.Manifest, osName string) int {
+	count := 0
+	for _, tool := range manifest.Tools {
+		if len(tool.PackagesFor(osName)) > 0 {
+			count++
+		}
+	}
+	return count
+}
+
 // BootstrapPlan returns only manager installers that can run without another
 // package manager already being available on the current platform.
 func BootstrapPlan(manifest config.Manifest, osName string, info platform.Info, lookup platform.Lookup) []BootstrapAction {

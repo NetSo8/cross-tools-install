@@ -20,6 +20,7 @@ func main() {
 	yes := flag.Bool("yes", false, "installer tous les outils sans TUI")
 	dryRun := flag.Bool("dry-run", false, "afficher/examiner le plan sans exécuter de commande")
 	bootstrap := flag.Bool("bootstrap", true, "installer automatiquement les gestionnaires manquants")
+	strict := flag.Bool("strict", false, "échouer si un outil du manifeste n'est pas installable")
 	osOverride := flag.String("os", "", "OS à simuler: windows, linux ou darwin")
 	flag.Parse()
 
@@ -43,6 +44,9 @@ func main() {
 
 	info := prepareManagers(manifest, osName, *bootstrap, *dryRun)
 	actions := installer.Plan(manifest, osName, info)
+	if *strict && len(actions) != installer.ExpectedCount(manifest, osName) {
+		fatal(fmt.Errorf("pack incomplet: %d/%d outils sont installables", len(actions), installer.ExpectedCount(manifest, osName)))
+	}
 	if *yes {
 		runNonInteractive(actions, *dryRun)
 		return

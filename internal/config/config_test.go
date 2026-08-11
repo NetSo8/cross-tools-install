@@ -39,3 +39,9 @@ func TestRepositoryManifestIsValid(t *testing.T) {
 		t.Fatalf("le manifeste devrait contenir les outils principaux, reçu: %d", len(manifest.Tools))
 	}
 }
+
+func TestSmokeManifestIsValid(t *testing.T) {
+	if _, err := Load(filepath.Join("..", "..", "testdata", "smoke-tools.json")); err != nil {
+		t.Fatal(err)
+	}
+}

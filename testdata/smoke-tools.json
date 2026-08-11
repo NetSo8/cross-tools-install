@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "tools": [
+    {
+      "name": "Git smoke test",
+      "category": "Integration",
+      "description": "Vérifie une installation réelle du gestionnaire principal",
+      "packages": {
+        "linux": [{"manager": "apt", "name": "git"}],
+        "darwin": [{"manager": "brew", "name": "git"}],
+        "windows": [{"manager": "winget", "name": "Git.Git"}, {"manager": "scoop", "name": "git"}]
+      }
+    },
+    {
+      "name": "CMake smoke test",
+      "category": "Integration",
+      "description": "Vérifie une seconde installation réelle",
+      "packages": {
+        "linux": [{"manager": "apt", "name": "cmake"}],
+        "darwin": [{"manager": "brew", "name": "cmake"}],
+        "windows": [{"manager": "winget", "name": "Kitware.CMake"}, {"manager": "scoop", "name": "cmake"}]
+      }
+    }
+  ]
+}
