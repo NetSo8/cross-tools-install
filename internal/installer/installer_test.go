@@ -68,6 +68,40 @@ func TestWingetAlreadyInstalledIsSuccessful(t *testing.T) {
 	}
 }
 
+func TestXcodeToolsAlreadyInstalledIsSuccessful(t *testing.T) {
+	action := Action{Manager: "xcode-select", Tool: config.Tool{Name: "CLT"}}
+	runner := &fakeRunner{failOn: "xcode-select", error: xcodeAlreadyInstalledError{}}
+	results := Install(context.Background(), runner, []Action{action})
+	if len(results) != 1 || results[0].Err != nil {
+		t.Fatalf("les outils CLT déjà installés devraient être acceptés: %#v", results)
+	}
+}
+
+func TestAptIndexIsUpdatedOnce(t *testing.T) {
+	actions := []Action{
+		actionFor(config.Tool{Name: "Git", Category: "toolchain"}, config.Package{Manager: "apt", Name: "git"}, "linux", platform.Info{}),
+		actionFor(config.Tool{Name: "CMake", Category: "toolchain"}, config.Package{Manager: "apt", Name: "cmake"}, "linux", platform.Info{}),
+	}
+	runner := &fakeRunner{}
+	results := Install(context.Background(), runner, actions)
+	if len(results) != 2 || len(runner.commands) != 3 {
+		t.Fatalf("APT devrait être mis à jour une seule fois: results=%d commands=%d", len(results), len(runner.commands))
+	}
+	if runner.commands[0][0] != "sudo" || runner.commands[0][1] != "apt-get" || runner.commands[0][2] != "update" {
+		t.Fatalf("commande de mise à jour inattendue: %#v", runner.commands[0])
+	}
+}
+
+func TestPipUsesUserInstallOutsideSystemEnvironment(t *testing.T) {
+	action := actionFor(config.Tool{Name: "Frida", Category: "reverse"}, config.Package{Manager: "pip", Name: "frida-tools"}, "darwin", platform.Info{Commands: map[string]string{"pip": "pip3"}})
+	command := FormatCommand(action)
+	for _, expected := range []string{"--user", "--break-system-packages"} {
+		if !strings.Contains(command, expected) {
+			t.Fatalf("option pip manquante %q dans %s", expected, command)
+		}
+	}
+}
+
 func TestInstallContinuesAfterFailure(t *testing.T) {
 	actions := []Action{{Tool: config.Tool{Name: "one"}, Command: "one"}, {Tool: config.Tool{Name: "two"}, Command: "two"}}
 	runner := &fakeRunner{failOn: "one"}
@@ -108,6 +142,12 @@ type alreadyInstalledError struct{}
 
 func (alreadyInstalledError) Error() string {
 	return "exit status 0x8a15002b: Found an existing package already installed. No available upgrade found."
+}
+
+type xcodeAlreadyInstalledError struct{}
+
+func (xcodeAlreadyInstalledError) Error() string {
+	return "xcode-select: note: Command line tools are already installed"
 }
 
 type errCommandFailed struct{}

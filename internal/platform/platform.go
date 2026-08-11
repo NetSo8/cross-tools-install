@@ -39,7 +39,7 @@ func knownPaths(goos, command string) []string {
 	switch {
 	case goos == "darwin" && command == "brew":
 		return []string{"/opt/homebrew/bin/brew", "/usr/local/bin/brew"}
-	case goos == "windows" && command == "scoop":
+	case goos == "windows" && (command == "scoop" || command == "scoop.cmd"):
 		home, err := os.UserHomeDir()
 		if err != nil {
 			return nil
@@ -57,7 +57,9 @@ func DetectWith(goos string, lookup Lookup) Info {
 	info := Info{Name: goos, Commands: make(map[string]string)}
 	switch goos {
 	case "windows":
-		info.add(lookup, "scoop", "scoop")
+		if !info.add(lookup, "scoop", "scoop.cmd") {
+			info.add(lookup, "scoop", "scoop")
+		}
 		info.add(lookup, "winget", "winget")
 		info.add(lookup, "pip", "pip")
 	case "linux":

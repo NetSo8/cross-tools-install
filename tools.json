@@ -21,7 +21,7 @@
       "packages": {
         "windows": [{"manager": "scoop", "name": "cutter"}, {"manager": "winget", "name": "rizinorg.Cutter"}],
         "linux": [{"manager": "apt", "name": "cutter"}, {"manager": "dnf", "name": "cutter"}, {"manager": "pacman", "name": "cutter"}],
-        "darwin": [{"manager": "brew", "name": "cutter", "options": ["--cask"]}]
+        "darwin": [{"manager": "brew", "name": "rizin"}]
       }
     },
     {
@@ -150,7 +150,7 @@
       "name": "pwndbg",
       "category": "Linux",
       "description": "Extension GDB pour l'exploitation et le heap",
-      "packages": {"linux": [{"manager": "script", "name": "pwndbg", "command": "bash", "args": ["-c", "git clone https://github.com/pwndbg/pwndbg.git ~/.local/share/pwndbg && ~/.local/share/pwndbg/setup.sh"]}]}
+      "packages": {"linux": [{"manager": "script", "name": "pwndbg", "command": "bash", "args": ["-c", "set -e; export PATH=$HOME/.local/bin:$PATH; root=$HOME/.local/share/pwndbg; if [ ! -d $root ]; then git clone --depth 1 https://github.com/pwndbg/pwndbg.git $root; fi; $root/setup.sh"]}]}
     },
     {
       "name": "Pwntools",
@@ -204,7 +204,7 @@
       "name": "FlameGraph",
       "category": "Linux",
       "description": "Visualisation des profils de performance",
-      "packages": {"linux": [{"manager": "apt", "name": "flamegraph"}, {"manager": "dnf", "name": "flamegraph"}, {"manager": "pacman", "name": "flamegraph"}]}
+      "packages": {"linux": [{"manager": "script", "name": "FlameGraph", "command": "bash", "args": ["-c", "set -e; root=$HOME/.local/share/FlameGraph; if [ ! -d $root ]; then git clone --depth 1 https://github.com/brendangregg/FlameGraph.git $root; fi"]}, {"manager": "apt", "name": "flamegraph"}, {"manager": "dnf", "name": "flamegraph"}, {"manager": "pacman", "name": "flamegraph"}]}
     },
     {
       "name": "Xcode Command Line Tools",

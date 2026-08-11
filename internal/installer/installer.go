@@ -225,7 +225,11 @@ func actionFor(tool config.Tool, pkg config.Package, osName string, info platfor
 		args = append([]string{"snap", "install"}, args...)
 		args = append(args, pkg.Name)
 	case "pip":
-		args = append([]string{"install"}, args...)
+		pipArgs := []string{"install", "--user"}
+		if osName != "windows" {
+			pipArgs = append(pipArgs, "--break-system-packages")
+		}
+		args = append(pipArgs, args...)
 		args = append(args, pkg.Name)
 	case "xcode-select":
 		command = info.Commands[pkg.Manager]
@@ -239,10 +243,19 @@ func actionFor(tool config.Tool, pkg config.Package, osName string, info platfor
 
 func Install(ctx context.Context, runner Runner, actions []Action) []Result {
 	results := make([]Result, 0, len(actions))
+	aptUpdated := false
 	for _, action := range actions {
 		if action.Builtin || action.Unavailable {
 			results = append(results, Result{Action: action})
 			continue
+		}
+		if action.Manager == "apt" && !aptUpdated {
+			updateErr := runner.Run(ctx, "sudo", []string{"apt-get", "update"})
+			aptUpdated = true
+			if updateErr != nil {
+				results = append(results, Result{Action: action, Err: fmt.Errorf("mise à jour APT: %w", updateErr)})
+				continue
+			}
 		}
 		err := runner.Run(ctx, action.Command, action.Args)
 		if err != nil && alreadyInstalled(action, err) {
@@ -254,11 +267,15 @@ func Install(ctx context.Context, runner Runner, actions []Action) []Result {
 }
 
 func alreadyInstalled(action Action, err error) bool {
-	if action.Manager != "winget" {
+	message := err.Error()
+	switch action.Manager {
+	case "winget":
+		return strings.Contains(message, "Found an existing package already installed") && strings.Contains(message, "No available upgrade found")
+	case "xcode-select":
+		return strings.Contains(message, "Command line tools are already installed")
+	default:
 		return false
 	}
-	message := err.Error()
-	return strings.Contains(message, "Found an existing package already installed") && strings.Contains(message, "No available upgrade found")
 }
 
 func FormatCommand(action Action) string {
