@@ -29,6 +29,8 @@ Dans la TUI, l'écran affiche uniquement le pack compatible avec l'OS. Il n'y a 
 
 Les commandes d'installation sont exécutées avec le terminal rendu temporairement à Homebrew, `sudo` ou au gestionnaire concerné : les demandes de mot de passe restent donc interactives et visibles.
 
+Une erreur sur un outil n'arrête pas le pack : les autres installations continuent et le bilan final liste les outils en échec.
+
 Options utiles :
 
 ```sh

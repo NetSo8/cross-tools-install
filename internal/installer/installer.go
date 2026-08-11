@@ -236,9 +236,6 @@ func Install(ctx context.Context, runner Runner, actions []Action) []Result {
 		}
 		err := runner.Run(ctx, action.Command, action.Args)
 		results = append(results, Result{Action: action, Err: err})
-		if err != nil {
-			break
-		}
 	}
 	return results
 }

@@ -126,7 +126,7 @@ func runNonInteractive(actions []installer.Action, dryRun bool) {
 		if result.Err != nil {
 			fmt.Fprintf(os.Stderr, "[échec] %s: %v\n", result.Action.Tool.Name, result.Err)
 			failed = true
-			break
+			continue
 		}
 		fmt.Printf("[ok] %s\n", result.Action.Tool.Name)
 	}

@@ -66,7 +66,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state = "finished"
 	case commandFinishedMsg:
 		m.results = append(m.results, installer.Result{Action: msg.action, Err: msg.err})
-		if msg.err != nil || msg.index == len(m.actions)-1 {
+		if msg.index == len(m.actions)-1 {
 			m.state = "finished"
 			return m, nil
 		}
@@ -166,11 +166,11 @@ func renderCategories(actions []installer.Action) string {
 
 func renderResults(results []installer.Result, total int, dryRun bool) string {
 	success, skipped, failed := 0, 0, 0
-	var failure string
+	var failures []string
 	for _, result := range results {
 		if result.Err != nil {
 			failed++
-			failure = result.Action.Tool.Name + ": " + result.Err.Error()
+			failures = append(failures, result.Action.Tool.Name+": "+result.Err.Error())
 		} else if result.Action.Builtin {
 			skipped++
 		} else {
@@ -181,7 +181,7 @@ func renderResults(results []installer.Result, total int, dryRun bool) string {
 		return "\n" + mutedStyle.Render(fmt.Sprintf("PLAN PRÊT  ·  %d commandes à exécuter", len(results))) + "\n" + mutedStyle.Render("Appuyez sur q pour quitter")
 	}
 	if failed > 0 {
-		return "\n" + badStyle.Render("INSTALLATION INTERROMPUE") + "\n" + mutedStyle.Render(fmt.Sprintf("%d réussies  ·  %d système  ·  %d en échec  ·  %d non exécutées", success, skipped, failed, total-len(results))) + "\n" + badStyle.Render(indentError(failure)) + "\n" + mutedStyle.Render("Appuyez sur q pour quitter")
+		return "\n" + badStyle.Render("PACK TERMINÉ AVEC DES ERREURS") + "\n" + mutedStyle.Render(fmt.Sprintf("%d réussies  ·  %d système  ·  %d en échec  ·  %d non exécutées", success, skipped, failed, total-len(results))) + "\n" + badStyle.Render(indentError(strings.Join(failures, "\n"))) + "\n" + mutedStyle.Render("Appuyez sur q pour quitter")
 	}
 	return "\n" + okStyle.Render("PACK INSTALLÉ") + "\n" + mutedStyle.Render(fmt.Sprintf("%d outils installés  ·  %d fournis par le système", success, skipped)) + "\n" + mutedStyle.Render("Appuyez sur q pour quitter")
 }

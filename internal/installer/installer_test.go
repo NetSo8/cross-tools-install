@@ -33,12 +33,12 @@ func TestPlanHidesUnavailableTools(t *testing.T) {
 	}
 }
 
-func TestInstallStopsAfterFailure(t *testing.T) {
+func TestInstallContinuesAfterFailure(t *testing.T) {
 	actions := []Action{{Tool: config.Tool{Name: "one"}, Command: "one"}, {Tool: config.Tool{Name: "two"}, Command: "two"}}
 	runner := &fakeRunner{failOn: "one"}
 	results := Install(context.Background(), runner, actions)
-	if len(results) != 1 || len(runner.commands) != 1 {
-		t.Fatalf("installation devrait s'arrêter: results=%d commands=%d", len(results), len(runner.commands))
+	if len(results) != 2 || len(runner.commands) != 2 {
+		t.Fatalf("installation devrait continuer: results=%d commands=%d", len(results), len(runner.commands))
 	}
 	if !reflect.DeepEqual(runner.commands[0], []string{"one"}) {
 		t.Fatalf("commande exécutée inattendue: %#v", runner.commands)

@@ -43,3 +43,25 @@ func TestViewPresentsOneCompletePack(t *testing.T) {
 		t.Fatalf("la vue ne devrait plus proposer de navigation individuelle: %s", view)
 	}
 }
+
+func TestCommandFailureDoesNotStopPack(t *testing.T) {
+	actions := []installer.Action{
+		{Tool: config.Tool{Name: "one"}, Builtin: true},
+		{Tool: config.Tool{Name: "two"}, Builtin: true},
+	}
+	model := NewModel(actions, platform.Info{Name: "darwin"}, false)
+	model.state = "installing"
+	updated, command := model.Update(commandFinishedMsg{index: 0, action: actions[0], err: errInstallFailed{}})
+	if command == nil || updated.(Model).state != "installing" {
+		t.Fatal("une erreur ne devrait pas arrêter le pack")
+	}
+	message := command()
+	finished, _ := updated.Update(message)
+	if finished.(Model).state != "finished" || len(finished.(Model).results) != 2 {
+		t.Fatal("toutes les actions devraient être traitées")
+	}
+}
+
+type errInstallFailed struct{}
+
+func (errInstallFailed) Error() string { return "installation failed" }
