@@ -40,6 +40,8 @@ type BootstrapResult struct {
 	Err    error
 }
 
+type PackageResolver func(config.Package) bool
+
 type Runner interface {
 	Run(context.Context, string, []string) error
 }
@@ -63,6 +65,10 @@ func (ExecRunner) Run(ctx context.Context, command string, args []string) error 
 }
 
 func Plan(manifest config.Manifest, osName string, info platform.Info) []Action {
+	return PlanWithResolver(manifest, osName, info, nil)
+}
+
+func PlanWithResolver(manifest config.Manifest, osName string, info platform.Info, resolver PackageResolver) []Action {
 	actions := make([]Action, 0, len(manifest.Tools))
 	for _, tool := range manifest.Tools {
 		packages := tool.PackagesFor(osName)
@@ -72,7 +78,7 @@ func Plan(manifest config.Manifest, osName string, info platform.Info) []Action 
 				selected = Action{Tool: tool, Package: pkg, Manager: pkg.Manager, Builtin: true}
 				break
 			}
-			if contains(info.Managers, pkg.Manager) {
+			if contains(info.Managers, pkg.Manager) && (resolver == nil || resolver(pkg)) {
 				selected = actionFor(tool, pkg, osName, info)
 				break
 			}
@@ -176,6 +182,23 @@ func bootstrapAction(osName, manager string, lookup platform.Lookup) (BootstrapA
 			Args:    []string{"-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", "irm get.scoop.sh | iex"},
 			Hint:    "Scoop sera installé pour fournir les paquets Windows.",
 		}, true
+	case osName == "windows" && manager == "winget":
+		command := "powershell"
+		if !commandAvailable(lookup, command) {
+			command = "pwsh"
+		}
+		if !commandAvailable(lookup, command) {
+			return BootstrapAction{}, false
+		}
+		return BootstrapAction{
+			Manager: "winget",
+			Command: command,
+			Args: []string{
+				"-NoProfile", "-ExecutionPolicy", "Bypass", "-Command",
+				"$ErrorActionPreference='Stop'; Install-PackageProvider -Name NuGet -Force -Scope CurrentUser; Set-PSRepository -Name PSGallery -InstallationPolicy Trusted; if (-not (Get-Module -ListAvailable -Name Microsoft.WinGet.Client)) { Install-Module -Name Microsoft.WinGet.Client -Force -Scope CurrentUser -AllowClobber }; Import-Module Microsoft.WinGet.Client; Repair-WinGetPackageManager -AllUsers -Latest",
+			},
+			Hint: "WinGet sera réparé avec le module Microsoft.WinGet.Client.",
+		}, true
 	case manager == "pip":
 		for _, command := range []string{"python3", "python", "py"} {
 			if commandAvailable(lookup, command) {
@@ -207,7 +230,11 @@ func actionFor(tool config.Tool, pkg config.Package, osName string, info platfor
 		args = append([]string{"install"}, args...)
 		args = append(args, pkg.Name)
 	case "winget":
-		args = append([]string{"install", "--id", pkg.Name, "--exact", "--source", "winget", "--accept-source-agreements", "--accept-package-agreements", "--disable-interactivity"}, args...)
+		source := pkg.Source
+		if source == "" {
+			source = "winget"
+		}
+		args = append([]string{"install", "--id", pkg.Name, "--exact", "--source", source, "--accept-source-agreements", "--accept-package-agreements", "--disable-interactivity", "--silent"}, args...)
 	case "apt":
 		command = "sudo"
 		args = append([]string{"DEBIAN_FRONTEND=noninteractive", "apt-get", "install", "-y"}, args...)

@@ -21,6 +21,7 @@ type Tool struct {
 type Package struct {
 	Manager string   `json:"manager"`
 	Name    string   `json:"name"`
+	Source  string   `json:"source,omitempty"`
 	Options []string `json:"options,omitempty"`
 	Command string   `json:"command,omitempty"`
 	Args    []string `json:"args,omitempty"`

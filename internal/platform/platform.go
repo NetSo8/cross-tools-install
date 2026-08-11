@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 type Lookup func(string) (string, error)
@@ -48,6 +49,12 @@ func knownPaths(goos, command string) []string {
 			filepath.Join(home, "scoop", "shims", "scoop.cmd"),
 			filepath.Join(home, "scoop", "shims", "scoop.exe"),
 		}
+	case goos == "windows" && (command == "winget" || command == "winget.exe"):
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return nil
+		}
+		return []string{filepath.Join(home, "AppData", "Local", "Microsoft", "WindowsApps", "winget.exe")}
 	default:
 		return nil
 	}
@@ -60,7 +67,9 @@ func DetectWith(goos string, lookup Lookup) Info {
 		if !info.add(lookup, "scoop", "scoop.cmd") {
 			info.add(lookup, "scoop", "scoop")
 		}
-		info.add(lookup, "winget", "winget")
+		if !info.add(lookup, "winget", "winget.exe") {
+			info.add(lookup, "winget", "winget")
+		}
 		info.add(lookup, "pip", "pip")
 	case "linux":
 		info.Privilege = "sudo"
@@ -85,6 +94,32 @@ func DetectWith(goos string, lookup Lookup) Info {
 		info.add(lookup, "pip", "pip3")
 	}
 	return info
+}
+
+func RefreshManagerPath(goos, manager string) {
+	commands := []string{manager}
+	if manager == "scoop" {
+		commands = append(commands, "scoop.cmd")
+	}
+	if manager == "winget" {
+		commands = append(commands, "winget.exe")
+	}
+	for _, command := range commands {
+		for _, path := range knownPaths(goos, command) {
+			if _, err := os.Stat(path); err != nil {
+				continue
+			}
+			directory := filepath.Dir(path)
+			pathEntries := strings.Split(os.Getenv("PATH"), string(os.PathListSeparator))
+			for _, entry := range pathEntries {
+				if entry == directory {
+					return
+				}
+			}
+			_ = os.Setenv("PATH", directory+string(os.PathListSeparator)+os.Getenv("PATH"))
+			return
+		}
+	}
 }
 
 func (i *Info) add(lookup Lookup, manager, command string) bool {

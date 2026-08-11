@@ -4,7 +4,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"os"
+	"os/exec"
 
 	"cross-tools-install/internal/config"
 	"cross-tools-install/internal/installer"
@@ -37,13 +39,13 @@ func main() {
 	}
 	if *list {
 		info := platform.DetectWith(osName, lookup)
-		actions := installer.Plan(manifest, osName, info)
+		actions := installer.PlanWithResolver(manifest, osName, info, resolvePackage(info))
 		printActions(actions, *dryRun)
 		return
 	}
 
 	info := prepareManagers(manifest, osName, *bootstrap, *dryRun)
-	actions := installer.Plan(manifest, osName, info)
+	actions := installer.PlanWithResolver(manifest, osName, info, resolvePackage(info))
 	if *strict && len(actions) != installer.ExpectedCount(manifest, osName) {
 		fatal(fmt.Errorf("pack incomplet: %d/%d outils sont installables", len(actions), installer.ExpectedCount(manifest, osName)))
 	}
@@ -83,6 +85,9 @@ func prepareManagers(manifest config.Manifest, osName string, enabled, dryRun bo
 		}
 		fmt.Printf("[ok] gestionnaire %s\n", result.Action.Manager)
 	}
+	for _, action := range bootstrap {
+		platform.RefreshManagerPath(osName, action.Manager)
+	}
 	updated := platform.DetectWith(osName, lookup)
 	for _, action := range bootstrap {
 		if !hasManager(updated, action.Manager) {
@@ -90,6 +95,27 @@ func prepareManagers(manifest config.Manifest, osName string, enabled, dryRun bo
 		}
 	}
 	return updated
+}
+
+func resolvePackage(info platform.Info) installer.PackageResolver {
+	return func(pkg config.Package) bool {
+		if pkg.Manager != "winget" {
+			return true
+		}
+		command := info.Commands["winget"]
+		if command == "" {
+			return false
+		}
+		source := pkg.Source
+		if source == "" {
+			source = "winget"
+		}
+		args := []string{"show", "--id", pkg.Name, "--exact", "--source", source, "--accept-source-agreements", "--disable-interactivity"}
+		cmd := exec.Command(command, args...)
+		cmd.Stdout = io.Discard
+		cmd.Stderr = io.Discard
+		return cmd.Run() == nil
+	}
 }
 
 func hasManager(info platform.Info, manager string) bool {

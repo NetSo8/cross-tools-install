@@ -21,6 +21,17 @@ func TestPlanUsesFirstAvailablePackageManager(t *testing.T) {
 	}
 }
 
+func TestPlanResolverUsesFirstExistingWingetID(t *testing.T) {
+	manifest := config.Manifest{Tools: []config.Tool{{Name: "Sysinternals", Category: "Windows", Packages: map[string][]config.Package{
+		"windows": {{Manager: "winget", Name: "obsolete.id"}, {Manager: "winget", Name: "valid.id", Source: "msstore"}},
+	}}}}
+	info := platform.Info{Name: "windows", Managers: []string{"winget"}, Commands: map[string]string{"winget": "winget.exe"}}
+	actions := PlanWithResolver(manifest, "windows", info, func(pkg config.Package) bool { return pkg.Name == "valid.id" })
+	if len(actions) != 1 || actions[0].Package.Name != "valid.id" || actions[0].Package.Source != "msstore" {
+		t.Fatalf("résolution winget inattendue: %#v", actions)
+	}
+}
+
 func TestPlanHidesUnavailableTools(t *testing.T) {
 	manifest := config.Manifest{Tools: []config.Tool{
 		{Name: "Git", Category: "toolchain", Packages: map[string][]config.Package{"linux": {{Manager: "apt", Name: "git"}}}},

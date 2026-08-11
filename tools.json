@@ -6,10 +6,10 @@
       "category": "Reverse engineering",
       "description": "Décompilateur et framework d'analyse binaire",
       "packages": {
-        "windows": [{"manager": "scoop", "name": "ghidra"}, {"manager": "winget", "name": "NSA.Ghidra"}],
-        "linux": [{"manager": "apt", "name": "ghidra"}, {"manager": "dnf", "name": "ghidra"}, {"manager": "pacman", "name": "ghidra"}],
+        "windows": [{"manager": "winget", "name": "NSA.Ghidra"}, {"manager": "scoop", "name": "ghidra"}],
+        "linux": [{"manager": "script", "name": "ghidra", "command": "bash", "args": ["-c", "set -e; if ! command -v java >/dev/null 2>&1; then if command -v apt-get >/dev/null 2>&1; then sudo DEBIAN_FRONTEND=noninteractive apt-get update; sudo DEBIAN_FRONTEND=noninteractive apt-get install -y openjdk-21-jre; elif command -v dnf >/dev/null 2>&1; then sudo dnf install -y java-21-openjdk; elif command -v pacman >/dev/null 2>&1; then sudo pacman -S --noconfirm jre21-openjdk; else echo 'Java 21 et gestionnaire compatible introuvables' >&2; exit 1; fi; fi; root=$HOME/.local/opt; mkdir -p $root; asset=$(curl -fsSL -A cross-tools-install https://github.com/NationalSecurityAgency/ghidra/releases/latest | grep -oE '/NationalSecurityAgency/ghidra/releases/download/[^\" ]+PUBLIC[^\" ]+\\.zip' | head -n 1); test -n $asset; curl -fL https://github.com$asset -o $root/ghidra.zip; unzip -q -o $root/ghidra.zip -d $root; rm -f $root/ghidra.zip"]}, {"manager": "apt", "name": "ghidra"}, {"manager": "dnf", "name": "ghidra"}, {"manager": "pacman", "name": "ghidra"}],
         "darwin": [
-          {"manager": "script", "name": "ghidra", "command": "bash", "args": ["-c", "set -e; brew install --cask temurin; root=$HOME/.local/opt; mkdir -p $root; url=$(curl -fsSL https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest | grep -oE 'https://[^ ]+PUBLIC[^ ]+\\.zip' | head -n 1); archive=$root/ghidra.zip; curl -fL $url -o $archive; unzip -q -o $archive -d $root; rm -f $archive"]},
+          {"manager": "script", "name": "ghidra", "command": "bash", "args": ["-c", "set -e; brew install --cask temurin; root=$HOME/.local/opt; mkdir -p $root; asset=$(curl -fsSL -A cross-tools-install https://github.com/NationalSecurityAgency/ghidra/releases/latest | grep -oE '/NationalSecurityAgency/ghidra/releases/download/[^\" ]+PUBLIC[^\" ]+\\.zip' | head -n 1); test -n $asset; curl -fL https://github.com$asset -o $root/ghidra.zip; unzip -q -o $root/ghidra.zip -d $root; rm -f $root/ghidra.zip"]},
           {"manager": "brew", "name": "ghidra", "options": ["--cask"]}
         ]
       }
@@ -19,8 +19,8 @@
       "category": "Reverse engineering",
       "description": "Interface graphique moderne pour l'analyse de binaires",
       "packages": {
-        "windows": [{"manager": "scoop", "name": "cutter"}, {"manager": "winget", "name": "rizinorg.Cutter"}],
-        "linux": [{"manager": "apt", "name": "cutter"}, {"manager": "dnf", "name": "cutter"}, {"manager": "pacman", "name": "cutter"}],
+        "windows": [{"manager": "winget", "name": "rizinorg.Cutter"}, {"manager": "scoop", "name": "cutter"}],
+        "linux": [{"manager": "script", "name": "cutter", "command": "bash", "args": ["-c", "set -e; root=$HOME/.local/bin; mkdir -p $root; asset=$(curl -fsSL -A cross-tools-install https://github.com/rizinorg/Cutter/releases/latest | grep -oE '/rizinorg/cutter/releases/download/[^\" ]+Cutter[^\" ]+Linux[^\" ]+AppImage' | grep -v Qt5 | head -n 1); test -n $asset; curl -fL https://github.com$asset -o $root/cutter; chmod +x $root/cutter"]}, {"manager": "apt", "name": "cutter"}, {"manager": "dnf", "name": "cutter"}, {"manager": "pacman", "name": "cutter"}],
         "darwin": [{"manager": "brew", "name": "rizin"}]
       }
     },
@@ -29,8 +29,8 @@
       "category": "Reverse engineering",
       "description": "Éditeur hexadécimal avec patterns PE, ELF et Mach-O",
       "packages": {
-        "windows": [{"manager": "scoop", "name": "imhex"}, {"manager": "winget", "name": "WerWolv.ImHex"}],
-        "linux": [{"manager": "apt", "name": "imhex"}, {"manager": "pacman", "name": "imhex"}],
+        "windows": [{"manager": "winget", "name": "WerWolv.ImHex"}, {"manager": "scoop", "name": "imhex"}],
+        "linux": [{"manager": "script", "name": "imhex", "command": "bash", "args": ["-c", "set -e; root=$HOME/.local/bin; mkdir -p $root; machine=$(uname -m); if [ $machine = aarch64 ]; then pattern='arm64.AppImage'; else pattern='x86_64.AppImage'; fi; asset=$(curl -fsSL -A cross-tools-install https://github.com/WerWolv/ImHex/releases/latest | grep -oE '/WerWolv/ImHex/releases/download/[^\" ]+imhex-[^\" ]+'$pattern | head -n 1); test -n $asset; curl -fL https://github.com$asset -o $root/imhex; chmod +x $root/imhex"]}, {"manager": "apt", "name": "imhex"}, {"manager": "pacman", "name": "imhex"}],
         "darwin": [{"manager": "brew", "name": "imhex", "options": ["--cask"]}]
       }
     },
@@ -57,7 +57,7 @@
       "category": "C / toolchain",
       "description": "Compilateur C/C++ et outils d'analyse modernes",
       "packages": {
-        "windows": [{"manager": "scoop", "name": "llvm"}, {"manager": "winget", "name": "LLVM.LLVM"}],
+        "windows": [{"manager": "winget", "name": "LLVM.LLVM"}, {"manager": "scoop", "name": "llvm"}],
         "linux": [{"manager": "apt", "name": "clang"}, {"manager": "dnf", "name": "clang"}, {"manager": "pacman", "name": "clang"}],
         "darwin": [{"manager": "brew", "name": "llvm"}]
       }
@@ -67,7 +67,7 @@
       "category": "C / toolchain",
       "description": "Compilateur C/C++ de référence sous Linux",
       "packages": {
-        "windows": [{"manager": "scoop", "name": "gcc"}, {"manager": "winget", "name": "MSYS2.MSYS2"}],
+        "windows": [{"manager": "winget", "name": "MSYS2.MSYS2"}, {"manager": "scoop", "name": "gcc"}],
         "linux": [{"manager": "apt", "name": "gcc"}, {"manager": "dnf", "name": "gcc"}, {"manager": "pacman", "name": "gcc"}],
         "darwin": [{"manager": "brew", "name": "gcc"}]
       }
@@ -76,20 +76,20 @@
       "name": "CMake",
       "category": "C / toolchain",
       "description": "Générateur de projets C/C++",
-      "packages": {"all": [{"manager": "brew", "name": "cmake"}, {"manager": "scoop", "name": "cmake"}, {"manager": "apt", "name": "cmake"}]}
+      "packages": {"windows": [{"manager": "winget", "name": "Kitware.CMake"}, {"manager": "scoop", "name": "cmake"}], "all": [{"manager": "brew", "name": "cmake"}, {"manager": "scoop", "name": "cmake"}, {"manager": "apt", "name": "cmake"}]}
     },
     {
       "name": "Ninja",
       "category": "C / toolchain",
       "description": "Build system rapide",
-      "packages": {"all": [{"manager": "brew", "name": "ninja"}, {"manager": "scoop", "name": "ninja"}, {"manager": "apt", "name": "ninja-build"}]}
+      "packages": {"windows": [{"manager": "winget", "name": "Ninja-build.Ninja"}, {"manager": "scoop", "name": "ninja"}], "all": [{"manager": "brew", "name": "ninja"}, {"manager": "scoop", "name": "ninja"}, {"manager": "apt", "name": "ninja-build"}]}
     },
     {
       "name": "Git",
       "category": "C / toolchain",
       "description": "Gestionnaire de version",
       "packages": {
-        "windows": [{"manager": "scoop", "name": "git"}, {"manager": "winget", "name": "Git.Git"}],
+        "windows": [{"manager": "winget", "name": "Git.Git"}, {"manager": "scoop", "name": "git"}],
         "linux": [{"manager": "apt", "name": "git"}, {"manager": "dnf", "name": "git"}, {"manager": "pacman", "name": "git"}],
         "darwin": [{"manager": "brew", "name": "git"}]
       }
@@ -99,7 +99,7 @@
       "category": "C / toolchain",
       "description": "Éditeur avec extensions C/C++ et clangd",
       "packages": {
-        "windows": [{"manager": "scoop", "name": "vscode"}, {"manager": "winget", "name": "Microsoft.VisualStudioCode"}],
+        "windows": [{"manager": "winget", "name": "Microsoft.VisualStudioCode"}, {"manager": "scoop", "name": "vscode"}],
         "linux": [{"manager": "snap", "name": "code", "options": ["--classic"]}],
         "darwin": [{"manager": "brew", "name": "visual-studio-code", "options": ["--cask"]}]
       }
@@ -108,13 +108,13 @@
       "name": "x64dbg / x32dbg",
       "category": "Windows",
       "description": "Débogueur user-mode pour PE",
-      "packages": {"windows": [{"manager": "scoop", "name": "x64dbg"}, {"manager": "winget", "name": "x64dbg.x64dbg"}]}
+      "packages": {"windows": [{"manager": "winget", "name": "x64dbg.x64dbg"}, {"manager": "scoop", "name": "x64dbg"}]}
     },
     {
       "name": "Sysinternals Suite",
       "category": "Windows",
       "description": "Procmon, Process Explorer et outils système Microsoft",
-      "packages": {"windows": [{"manager": "winget", "name": "Microsoft.Sysinternals"}]}
+      "packages": {"windows": [{"manager": "scoop", "name": "sysinternals"}, {"manager": "winget", "name": "Microsoft.Sysinternals"}, {"manager": "winget", "name": "9P7KNL5RWT25", "source": "msstore"}]}
     },
     {
       "name": "System Informer",
@@ -126,7 +126,7 @@
       "name": "PE-bear",
       "category": "Windows",
       "description": "Visualiseur de structures PE",
-      "packages": {"windows": [{"manager": "scoop", "name": "pe-bear"}]}
+      "packages": {"windows": [{"manager": "winget", "name": "hasherezade.PE-bear"}, {"manager": "scoop", "name": "pe-bear"}]}
     },
     {
       "name": "w64devkit",
