@@ -207,7 +207,7 @@ func actionFor(tool config.Tool, pkg config.Package, osName string, info platfor
 		args = append([]string{"install"}, args...)
 		args = append(args, pkg.Name)
 	case "winget":
-		args = append([]string{"install", "--id", pkg.Name, "--exact", "--accept-source-agreements", "--accept-package-agreements"}, args...)
+		args = append([]string{"install", "--id", pkg.Name, "--exact", "--source", "winget", "--accept-source-agreements", "--accept-package-agreements", "--disable-interactivity"}, args...)
 	case "apt":
 		command = "sudo"
 		args = append([]string{"apt-get", "install", "-y"}, args...)

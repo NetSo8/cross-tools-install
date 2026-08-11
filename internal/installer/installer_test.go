@@ -43,6 +43,21 @@ func TestExpectedCountOnlyIncludesToolsForOS(t *testing.T) {
 	}
 }
 
+func TestWingetUsesNonInteractiveWingetSource(t *testing.T) {
+	action := actionFor(
+		config.Tool{Name: "Git", Category: "toolchain"},
+		config.Package{Manager: "winget", Name: "Git.Git"},
+		"windows",
+		platform.Info{Commands: map[string]string{"winget": "winget"}},
+	)
+	command := FormatCommand(action)
+	for _, expected := range []string{"--source winget", "--accept-source-agreements", "--disable-interactivity"} {
+		if !strings.Contains(command, expected) {
+			t.Fatalf("option winget manquante %q dans %s", expected, command)
+		}
+	}
+}
+
 func TestInstallContinuesAfterFailure(t *testing.T) {
 	actions := []Action{{Tool: config.Tool{Name: "one"}, Command: "one"}, {Tool: config.Tool{Name: "two"}, Command: "two"}}
 	runner := &fakeRunner{failOn: "one"}
