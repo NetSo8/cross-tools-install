@@ -245,9 +245,20 @@ func Install(ctx context.Context, runner Runner, actions []Action) []Result {
 			continue
 		}
 		err := runner.Run(ctx, action.Command, action.Args)
+		if err != nil && alreadyInstalled(action, err) {
+			err = nil
+		}
 		results = append(results, Result{Action: action, Err: err})
 	}
 	return results
+}
+
+func alreadyInstalled(action Action, err error) bool {
+	if action.Manager != "winget" {
+		return false
+	}
+	message := err.Error()
+	return strings.Contains(message, "Found an existing package already installed") && strings.Contains(message, "No available upgrade found")
 }
 
 func FormatCommand(action Action) string {

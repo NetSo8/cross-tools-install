@@ -58,6 +58,16 @@ func TestWingetUsesNonInteractiveWingetSource(t *testing.T) {
 	}
 }
 
+func TestWingetAlreadyInstalledIsSuccessful(t *testing.T) {
+	action := Action{Manager: "winget", Tool: config.Tool{Name: "Git"}}
+	runner := &fakeRunner{failOn: "winget"}
+	runner.error = alreadyInstalledError{}
+	results := Install(context.Background(), runner, []Action{action})
+	if len(results) != 1 || results[0].Err != nil {
+		t.Fatalf("un paquet déjà installé devrait être accepté: %#v", results)
+	}
+}
+
 func TestInstallContinuesAfterFailure(t *testing.T) {
 	actions := []Action{{Tool: config.Tool{Name: "one"}, Command: "one"}, {Tool: config.Tool{Name: "two"}, Command: "two"}}
 	runner := &fakeRunner{failOn: "one"}
@@ -80,14 +90,24 @@ func TestExecRunnerIncludesCommandOutputOnFailure(t *testing.T) {
 type fakeRunner struct {
 	commands [][]string
 	failOn   string
+	error    error
 }
 
 func (r *fakeRunner) Run(_ context.Context, command string, args []string) error {
 	r.commands = append(r.commands, append([]string{command}, args...))
 	if command == r.failOn {
+		if r.error != nil {
+			return r.error
+		}
 		return errCommandFailed{}
 	}
 	return nil
+}
+
+type alreadyInstalledError struct{}
+
+func (alreadyInstalledError) Error() string {
+	return "exit status 0x8a15002b: Found an existing package already installed. No available upgrade found."
 }
 
 type errCommandFailed struct{}
