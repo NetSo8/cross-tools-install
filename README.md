@@ -89,3 +89,25 @@ go test ./...
 go vet ./...
 go build ./cmd/cross-tools
 ```
+
+## Releases GitHub
+
+Chaque push sur `main` ou pull request lance les tests sur Linux, macOS et Windows. Le détecteur de race est exécuté sur Linux.
+
+Pour créer une release, pousser un tag semver :
+
+```sh
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+La GitHub Action reteste les trois OS avant de publier les binaires suivants :
+
+- `cross-tools-linux-amd64`
+- `cross-tools-linux-arm64`
+- `cross-tools-darwin-amd64`
+- `cross-tools-darwin-arm64`
+- `cross-tools-windows-amd64.exe`
+- `tools.json`
+
+Le manifeste reste publié avec les binaires, car il doit actuellement être placé dans le même dossier que l'exécutable.
