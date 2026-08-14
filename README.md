@@ -14,7 +14,7 @@ Installateur cross-platform en Go pour les outils de reverse engineering et de d
 
 macOS fournit déjà LLDB, `otool` et DTrace via les outils système. Ils apparaissent dans l'interface mais ne déclenchent aucune installation.
 
-Au lancement normal, les gestionnaires manquants sont bootstrappés avant le plan des outils : Homebrew sur macOS, Scoop sur Windows et `pip` via `ensurepip` lorsque Python est disponible. `winget` dépend de l'App Installer de Microsoft et les gestionnaires Linux natifs dépendent de la distribution : s'ils sont absents, l'outil les signale sans tenter une installation destructive. `--list` reste toujours sans effet de bord.
+Au lancement normal, les gestionnaires manquants sont bootstrappés avant le plan des outils : Homebrew sur macOS, Scoop sur Windows et `pip` via `ensurepip` lorsque Python est disponible. `winget` dépend de l’App Installer de Microsoft et les gestionnaires Linux natifs dépendent de la distribution : s'ils sont absents, l'outil les signale sans tenter une installation destructive. Le manifeste par défaut est intégré au binaire ; un fichier `tools.json` présent dans le répertoire courant peut le remplacer. `--list` reste toujours sans effet de bord.
 
 ## Utilisation
 
@@ -52,7 +52,7 @@ go run ./cmd/cross-tools --bootstrap=false
 
 ## Manifeste
 
-`tools.json` est volontairement externe au binaire. Chaque outil peut déclarer des alternatives par OS, dans l'ordre de préférence :
+Le manifeste par défaut est intégré au binaire et peut être remplacé avec `--manifest`. Chaque outil peut déclarer des alternatives par OS, dans l'ordre de préférence :
 
 ```json
 {
@@ -110,6 +110,6 @@ La GitHub Action reteste les trois OS avant de publier les binaires suivants :
 - `cross-tools-darwin-amd64`
 - `cross-tools-darwin-arm64`
 - `cross-tools-windows-amd64.exe`
-- `tools.json`
+- `tools.json` (surcharge facultative)
 
-Le manifeste reste publié avec les binaires, car il doit actuellement être placé dans le même dossier que l'exécutable.
+`tools.json` reste publié avec les binaires pour permettre une surcharge ou une modification du manifeste ; le binaire fonctionne aussi sans ce fichier.

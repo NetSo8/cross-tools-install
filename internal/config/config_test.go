@@ -23,6 +23,17 @@ func TestLoadAndPackagesFor(t *testing.T) {
 	}
 }
 
+func TestLoadBytes(t *testing.T) {
+	content := []byte(`{"version":1,"tools":[{"name":"Git","category":"toolchain","packages":{"linux":[{"manager":"apt","name":"git"}]}}]}`)
+	manifest, err := LoadBytes("embedded", content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(manifest.Tools) != 1 || manifest.Tools[0].Name != "Git" {
+		t.Fatalf("manifeste inattendu: %#v", manifest)
+	}
+}
+
 func TestValidateRejectsDuplicateTools(t *testing.T) {
 	manifest := Manifest{Tools: []Tool{{Name: "Git", Category: "x", Packages: map[string][]Package{"all": {{Manager: "apt", Name: "git"}}}}, {Name: "Git", Category: "x", Packages: map[string][]Package{"all": {{Manager: "apt", Name: "git"}}}}}}
 	if err := manifest.Validate(); err == nil {

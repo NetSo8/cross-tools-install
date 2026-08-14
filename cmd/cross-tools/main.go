@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 
+	"cross-tools-install"
 	"cross-tools-install/internal/config"
 	"cross-tools-install/internal/installer"
 	"cross-tools-install/internal/platform"
@@ -16,8 +18,10 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+const defaultManifestPath = "tools.json"
+
 func main() {
-	manifestPath := flag.String("manifest", "tools.json", "chemin vers le manifeste JSON")
+	manifestPath := flag.String("manifest", defaultManifestPath, "chemin vers le manifeste JSON")
 	list := flag.Bool("list", false, "afficher les outils disponibles et quitter")
 	yes := flag.Bool("yes", false, "installer tous les outils sans TUI")
 	dryRun := flag.Bool("dry-run", false, "afficher/examiner le plan sans exécuter de commande")
@@ -26,7 +30,7 @@ func main() {
 	osOverride := flag.String("os", "", "OS à simuler: windows, linux ou darwin")
 	flag.Parse()
 
-	manifest, err := config.Load(*manifestPath)
+	manifest, err := loadManifest(*manifestPath)
 	if err != nil {
 		fatal(err)
 	}
@@ -58,6 +62,14 @@ func main() {
 	if _, err := tea.NewProgram(model).Run(); err != nil {
 		fatal(err)
 	}
+}
+
+func loadManifest(path string) (config.Manifest, error) {
+	manifest, err := config.Load(path)
+	if err == nil || path != defaultManifestPath || !errors.Is(err, os.ErrNotExist) {
+		return manifest, err
+	}
+	return config.LoadBytes("manifeste intégré", embedded.ToolsJSON)
 }
 
 func currentOS() string { return platform.Detect().Name }

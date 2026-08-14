@@ -32,6 +32,10 @@ func Load(path string) (Manifest, error) {
 	if err != nil {
 		return Manifest{}, fmt.Errorf("lecture du manifeste %q: %w", path, err)
 	}
+	return LoadBytes(path, data)
+}
+
+func LoadBytes(path string, data []byte) (Manifest, error) {
 	var manifest Manifest
 	if err := json.Unmarshal(data, &manifest); err != nil {
 		return Manifest{}, fmt.Errorf("JSON invalide %q: %w", path, err)
