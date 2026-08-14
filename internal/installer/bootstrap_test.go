@@ -37,6 +37,31 @@ func TestInstallBootstrapStopsOnFailure(t *testing.T) {
 	}
 }
 
+func TestBootstrapPlanInstallsPipWithPacman(t *testing.T) {
+	manifest := config.Manifest{Tools: []config.Tool{{
+		Name: "Frida", Category: "reverse",
+		Packages: map[string][]config.Package{"all": {{Manager: "pip", Name: "frida-tools"}}},
+	}}}
+	info := platform.Info{
+		Name:     "linux",
+		Managers: []string{"pacman"},
+		Commands: map[string]string{"pacman": "pacman"},
+	}
+	lookup := func(command string) (string, error) {
+		if command == "pacman" {
+			return "/usr/bin/pacman", nil
+		}
+		return "", bootstrapNotFound{}
+	}
+	actions := BootstrapPlan(manifest, "linux", info, lookup)
+	if len(actions) != 1 {
+		t.Fatalf("bootstrap pip inattendu: %#v", actions)
+	}
+	if got := FormatBootstrapCommand(actions[0]); got != "sudo pacman -S --noconfirm python-pip" {
+		t.Fatalf("commande pacman inattendue: %s", got)
+	}
+}
+
 type bootstrapRunner struct {
 	commands [][]string
 }

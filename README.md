@@ -14,7 +14,7 @@ Installateur cross-platform en Go pour les outils de reverse engineering et de d
 
 macOS fournit déjà LLDB, `otool` et DTrace via les outils système. Ils apparaissent dans l'interface mais ne déclenchent aucune installation.
 
-Au lancement normal, les gestionnaires manquants sont bootstrappés avant le plan des outils : Homebrew sur macOS, Scoop sur Windows et `pip` via `ensurepip` lorsque Python est disponible. `winget` dépend de l’App Installer de Microsoft et les gestionnaires Linux natifs dépendent de la distribution : s'ils sont absents, l'outil les signale sans tenter une installation destructive. Le manifeste par défaut est intégré au binaire ; un fichier `tools.json` présent dans le répertoire courant peut le remplacer. `--list` reste toujours sans effet de bord.
+Au lancement normal, les gestionnaires manquants sont bootstrappés avant le plan des outils : Homebrew sur macOS, Scoop sur Windows et `pip` via le gestionnaire de paquets Linux (`python-pip` sur Arch, `python3-pip` sur Debian/Fedora). En dernier recours, `ensurepip` est utilisé lorsque Python est disponible. `winget` dépend de l’App Installer de Microsoft et les gestionnaires Linux natifs dépendent de la distribution : s'ils sont absents, l'outil les signale sans tenter une installation destructive. Le manifeste par défaut est intégré au binaire ; un fichier `tools.json` présent dans le répertoire courant peut le remplacer. `--list` reste toujours sans effet de bord.
 
 ## Utilisation
 

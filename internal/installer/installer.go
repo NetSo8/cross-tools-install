@@ -115,7 +115,7 @@ func BootstrapPlan(manifest config.Manifest, osName string, info platform.Info, 
 			if contains(info.Managers, pkg.Manager) || seen[pkg.Manager] {
 				continue
 			}
-			if action, ok := bootstrapAction(osName, pkg.Manager, lookup); ok {
+			if action, ok := bootstrapAction(osName, pkg.Manager, info, lookup); ok {
 				needed = append(needed, action)
 				seen[pkg.Manager] = true
 				break
@@ -156,7 +156,7 @@ func hasUsablePackage(packages []config.Package, info platform.Info) bool {
 	return false
 }
 
-func bootstrapAction(osName, manager string, lookup platform.Lookup) (BootstrapAction, bool) {
+func bootstrapAction(osName, manager string, info platform.Info, lookup platform.Lookup) (BootstrapAction, bool) {
 	switch {
 	case osName == "darwin" && manager == "brew":
 		if !commandAvailable(lookup, "bash") || !commandAvailable(lookup, "curl") {
@@ -200,6 +200,31 @@ func bootstrapAction(osName, manager string, lookup platform.Lookup) (BootstrapA
 			Hint: "WinGet sera réparé avec le module Microsoft.WinGet.Client.",
 		}, true
 	case manager == "pip":
+		if osName == "linux" {
+			for _, candidate := range []struct {
+				manager string
+				command string
+				pkg     string
+			}{
+				{manager: "pacman", command: "pacman", pkg: "python-pip"},
+				{manager: "apt", command: "apt-get", pkg: "python3-pip"},
+				{manager: "dnf", command: "dnf", pkg: "python3-pip"},
+			} {
+				if info.Commands[candidate.manager] == "" && !commandAvailable(lookup, candidate.command) {
+					continue
+				}
+				args := []string{"install", "-y", candidate.pkg}
+				if candidate.manager == "pacman" {
+					args = []string{"-S", "--noconfirm", candidate.pkg}
+				}
+				return BootstrapAction{
+					Manager: "pip",
+					Command: "sudo",
+					Args:    append([]string{candidate.command}, args...),
+					Hint:    fmt.Sprintf("pip sera installé avec %s.", candidate.manager),
+				}, true
+			}
+		}
 		for _, command := range []string{"python3", "python", "py"} {
 			if commandAvailable(lookup, command) {
 				return BootstrapAction{
